@@ -21,9 +21,9 @@ config = {
         "VERSION": __version__,
         "REPOSITORY": "https://github.com/edx/enterprise-catalog.git",
         "REPOSITORY_VERSION": "{% set ver = OPENEDX_COMMON_VERSION %}{% if ver.startswith('open-release/') %}{{ ver }}{% elif ver.startswith('release/redwood') %}open-release/redwood.master{% elif ver.startswith('release/quince') %}open-release/quince.master{% else %}{{ ver }}{% endif %}",
-        # Allow operators to point to a prebuilt image; if blank we build/push BUILT_IMAGE.
-        "DOCKER_IMAGE": "",
-        "BUILD_IMAGE": True,
+        # Default to pulling the official openedx image. Set to "" to force building BUILT_IMAGE instead.
+        "DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}openedx/enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
+        "BUILD_IMAGE": False,
         "BUILT_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
         "PYTHON_VERSION": "3.12.2",
         "HOST": "enterprisecatalog.{{ LMS_HOST }}",
