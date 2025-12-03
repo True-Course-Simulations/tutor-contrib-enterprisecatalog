@@ -1,4 +1,6 @@
+{% set ENTERPRISECATALOG_IMAGE = ENTERPRISECATALOG_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_IMAGE %}
 enterprisecatalog:
+  image: {{ ENTERPRISECATALOG_IMAGE }}
   environment:
     DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.development
   command: python3 manage.py runserver 0.0.0.0:8160

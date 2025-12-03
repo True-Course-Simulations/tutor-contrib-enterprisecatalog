@@ -1,5 +1,6 @@
+{% set ENTERPRISECATALOG_IMAGE = ENTERPRISECATALOG_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_IMAGE %}
 enterprisecatalog:
-  image: {{ ENTERPRISECATALOG_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_IMAGE }}
+  image: {{ ENTERPRISECATALOG_IMAGE }}
   environment:
     DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.production
   volumes:
