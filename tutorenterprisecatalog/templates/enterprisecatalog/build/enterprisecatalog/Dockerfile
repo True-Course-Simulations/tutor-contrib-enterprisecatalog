@@ -46,13 +46,6 @@ RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install -r 
 # Install django-redis for using redis as a django cache
 RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install django-redis==5.4.0
 
-FROM base AS openedx-enterprise-catalog-worker
-
-{{ patch("enterprise-catalog-worker-dockerfile-post-python-requirements") }}
-
-ENV WORKER_CONFIGURATION_MODULE enterprise_catalog.settings.tutor.celeryconfig
-CMD celery worker --app=enterprise_catalog.celery:app --loglevel=info
-
 FROM base AS openedx-enterprise-catalog
 
 # Install uwsgi

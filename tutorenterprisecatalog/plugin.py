@@ -21,11 +21,9 @@ config = {
         "VERSION": __version__,
         "REPOSITORY": "https://github.com/edx/enterprise-catalog.git",
         "REPOSITORY_VERSION": "{{ OPENEDX_COMMON_VERSION }}",
-        # Allow operators to point to prebuilt images; if blank we build/push BUILT_*.
+        # Allow operators to point to a prebuilt image; if blank we build/push BUILT_IMAGE.
         "DOCKER_IMAGE": "",
-        "WORKER_DOCKER_IMAGE": "",
         "BUILT_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
-        "BUILT_WORKER_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog-worker:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
         "PYTHON_VERSION": "3.12.2",
         "HOST": "enterprisecatalog.{{ LMS_HOST }}",
         "MYSQL_DATABASE": "enterprisecatalog",
@@ -83,15 +81,6 @@ def _images_build(images, settings):
                 (),
             )
         )
-    if not settings.get("ENTERPRISECATALOG_WORKER_DOCKER_IMAGE"):
-        images.append(
-            (
-                "enterprisecatalog-worker",
-                os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
-                settings["ENTERPRISECATALOG_BUILT_WORKER_IMAGE"],
-                ("--target=openedx-enterprise-catalog-worker",),
-            )
-        )
     return images
 
 
@@ -99,10 +88,6 @@ def _images_build(images, settings):
 def _images_pull(images, settings):
     if settings.get("ENTERPRISECATALOG_DOCKER_IMAGE"):
         images.append(("enterprisecatalog", settings["ENTERPRISECATALOG_DOCKER_IMAGE"]))
-    if settings.get("ENTERPRISECATALOG_WORKER_DOCKER_IMAGE"):
-        images.append(
-            ("enterprisecatalog-worker", settings["ENTERPRISECATALOG_WORKER_DOCKER_IMAGE"])
-        )
     return images
 
 # Init tasks
