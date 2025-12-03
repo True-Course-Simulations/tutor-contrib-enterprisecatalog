@@ -34,12 +34,14 @@ setup(
     },
     license="AGPLv3",
     author="Sofiane Bebert",
-    description="enterprisecatalog plugin for Tutor",
+    maintainer="Cannon Smith",
+    maintainer_email="cannon@tcsims.com",
+    description="A Tutor plugin for Open edX Enterprise Catalog (Sumac / Tutor v16+ compatible)",
     long_description=load_readme(),
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     python_requires=">=3.10",
-    install_requires=["tutor>=16,<21"],
+    install_requires=["tutor>=16.0.0"],
     entry_points={
         "tutor.plugin.v1": [
             "enterprisecatalog = tutorenterprisecatalog.plugin"
