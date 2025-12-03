@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import importlib.resources as importlib_resources
 import os
 from glob import glob
 
-from tutor import hooks
+import importlib.resources as importlib_resources
+
+from tutor import hooks as tutor_hooks
 from tutor.hooks import priorities
 
 from .__about__ import __version__
@@ -33,13 +34,13 @@ config = {
 }
 
 # Register configuration entries with Tutor
-hooks.Filters.CONFIG_UNIQUE.add_items(
+tutor_hooks.Filters.CONFIG_UNIQUE.add_items(
     [
         (f"ENTERPRISECATALOG_{key}", value)
         for key, value in config.get("add", {}).items()
     ]
 )
-hooks.Filters.CONFIG_DEFAULTS.add_items(
+tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
     [
         (f"ENTERPRISECATALOG_{key}", value)
         for key, value in config.get("defaults", {}).items()
@@ -48,8 +49,8 @@ hooks.Filters.CONFIG_DEFAULTS.add_items(
 
 # Template roots and targets
 templates_dir = str(importlib_resources.files("tutorenterprisecatalog") / "templates")
-hooks.Filters.ENV_TEMPLATE_ROOTS.add_item(templates_dir)
-hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
+tutor_hooks.Filters.ENV_TEMPLATE_ROOTS.add_item(templates_dir)
+tutor_hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
     [
         ("enterprisecatalog/apps", "plugins"),
         ("enterprisecatalog/build", "plugins"),
@@ -60,13 +61,13 @@ hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
 patches_dir = importlib_resources.files("tutorenterprisecatalog") / "patches"
 for path in glob(str(patches_dir / "*")):
     with open(path, encoding="utf-8") as patch_file:
-        hooks.Filters.ENV_PATCHES.add_item(
+        tutor_hooks.Filters.ENV_PATCHES.add_item(
             (os.path.basename(path), patch_file.read()),
             priority=priorities.DEFAULT,
         )
 
 # Images to build
-hooks.Filters.IMAGES_BUILD.add_items(
+tutor_hooks.Filters.IMAGES_BUILD.add_items(
     [
         (
             "enterprisecatalog",
@@ -88,4 +89,4 @@ hooks_dir = importlib_resources.files("tutorenterprisecatalog") / "templates" / 
 for task_name in ["mysql", "enterprisecatalog", "lms"]:
     task_path = hooks_dir / task_name / "init"
     with open(task_path, encoding="utf-8") as task_file:
-        hooks.Filters.CLI_DO_INIT_TASKS.add_item((task_name, task_file.read()))
+        tutor_hooks.Filters.CLI_DO_INIT_TASKS.add_item((task_name, task_file.read()))

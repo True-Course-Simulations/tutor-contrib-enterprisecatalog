@@ -56,7 +56,7 @@ LOGGING["loggers"]["algoliasearch_django"] = {"level": "WARNING"}
 OAUTH2_PROVIDER_URL = "http://lms:8000/oauth2"
 
 OAUTH_API_TIMEOUT = 5
-{% set jwt_rsa_key = rsa_import_key(JWT_RSA_PRIVATE_KEY) %}
+{% set jwt_rsa_key | rsa_import_key %}{{ JWT_RSA_PRIVATE_KEY }}{% endset %}
 import json
 JWT_AUTH["JWT_ISSUER"] = "{{ JWT_COMMON_ISSUER }}"
 JWT_AUTH["JWT_AUDIENCE"] = "{{ JWT_COMMON_AUDIENCE }}"
