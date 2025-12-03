@@ -1,3 +1,10 @@
-make migrate
+#!/bin/bash
+# Run migrations and bootstrap metadata once the database is ready.
 
+dockerize -wait tcp://{{ MYSQL_HOST }}:{{ MYSQL_PORT }} -timeout 20s
+
+echo "enterprisecatalog service - ./manage.py migrate"
+./manage.py migrate --noinput
+
+echo "enterprisecatalog service - ./manage.py update_content_metadata"
 ./manage.py update_content_metadata
