@@ -21,7 +21,7 @@ USER ${APP_USER_ID}
 
 # Clone the enterprise-catalog repo at the configured ref
 ARG ENTERPRISE_CATALOG_REPOSITORY={{ ENTERPRISECATALOG_REPOSITORY }}
-ARG ENTERPRISE_CATALOG_VERSION={{ ENTERPRISECATALOG_REPOSITORY_VERSION }}
+ARG ENTERPRISE_CATALOG_VERSION={{ OPENEDX_COMMON_VERSION }}
 RUN mkdir -p /openedx/enterprise-catalog && \
     git clone $ENTERPRISE_CATALOG_REPOSITORY --branch $ENTERPRISE_CATALOG_VERSION --depth 1 /openedx/enterprise-catalog
 WORKDIR /openedx/enterprise-catalog
@@ -31,7 +31,7 @@ RUN echo "{}" > /openedx/config.yml
 ENV ENTERPRISE_CATALOG_CFG /openedx/config.yml
 
 # Install Python via pyenv (matches upstream images)
-ARG PYTHON_VERSION={{ ENTERPRISECATALOG_PYTHON_VERSION }}
+ARG PYTHON_VERSION=3.11.9
 ENV PYENV_ROOT=/opt/pyenv
 USER root
 RUN git clone https://github.com/pyenv/pyenv $PYENV_ROOT --branch v2.3.36 --depth 1
