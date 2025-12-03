@@ -19,8 +19,13 @@ config = {
     },
     "defaults": {
         "VERSION": __version__,
-        "DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog:{{ ENTERPRISECATALOG_VERSION }}",
-        "WORKER_DOCKER_IMAGE": "openedx-enterprise-catalog-worker",
+        "REPOSITORY": "https://github.com/edx/enterprise-catalog.git",
+        "REPOSITORY_VERSION": "{{ OPENEDX_COMMON_VERSION }}",
+        # Allow operators to point to prebuilt images; if blank we build/push BUILT_*.
+        "DOCKER_IMAGE": "",
+        "WORKER_DOCKER_IMAGE": "",
+        "BUILT_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
+        "BUILT_WORKER_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog-worker:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
         "PYTHON_VERSION": "3.12.2",
         "HOST": "enterprisecatalog.{{ LMS_HOST }}",
         "MYSQL_DATABASE": "enterprisecatalog",
@@ -66,23 +71,39 @@ for path in glob(str(patches_dir / "*")):
             priority=priorities.DEFAULT,
         )
 
-# Images to build
-tutor_hooks.Filters.IMAGES_BUILD.add_items(
-    [
-        (
-            "enterprisecatalog",
-            os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
-            "{{ ENTERPRISECATALOG_DOCKER_IMAGE }}",
-            (),
-        ),
-        (
-            "enterprisecatalog-worker",
-            os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
-            "{{ ENTERPRISECATALOG_WORKER_DOCKER_IMAGE }}",
-            ("--target=openedx-enterprise-catalog-worker",),
-        ),
-    ]
-)
+# Images to build: only when external images are not provided
+@tutor_hooks.Filters.IMAGES_BUILD.add()
+def _images_build(images, settings):
+    if not settings.get("ENTERPRISECATALOG_DOCKER_IMAGE"):
+        images.append(
+            (
+                "enterprisecatalog",
+                os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
+                settings["ENTERPRISECATALOG_BUILT_IMAGE"],
+                (),
+            )
+        )
+    if not settings.get("ENTERPRISECATALOG_WORKER_DOCKER_IMAGE"):
+        images.append(
+            (
+                "enterprisecatalog-worker",
+                os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
+                settings["ENTERPRISECATALOG_BUILT_WORKER_IMAGE"],
+                ("--target=openedx-enterprise-catalog-worker",),
+            )
+        )
+    return images
+
+
+@tutor_hooks.Filters.IMAGES_PULL.add()
+def _images_pull(images, settings):
+    if settings.get("ENTERPRISECATALOG_DOCKER_IMAGE"):
+        images.append(("enterprisecatalog", settings["ENTERPRISECATALOG_DOCKER_IMAGE"]))
+    if settings.get("ENTERPRISECATALOG_WORKER_DOCKER_IMAGE"):
+        images.append(
+            ("enterprisecatalog-worker", settings["ENTERPRISECATALOG_WORKER_DOCKER_IMAGE"])
+        )
+    return images
 
 # Init tasks
 hooks_dir = importlib_resources.files("tutorenterprisecatalog") / "templates" / "enterprisecatalog" / "hooks"

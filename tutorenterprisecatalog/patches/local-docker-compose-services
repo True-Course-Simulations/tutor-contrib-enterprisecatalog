@@ -1,5 +1,5 @@
 enterprisecatalog:
-  image: {{ ENTERPRISECATALOG_DOCKER_IMAGE }}
+  image: {{ ENTERPRISECATALOG_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_IMAGE }}
   environment:
     DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.production
   volumes:
@@ -10,10 +10,11 @@ enterprisecatalog:
     {% if RUN_MYSQL %}- mysql{% endif %}
 
 enterprisecatalog-worker:
-  image: openedx-enterprise-catalog-worker
-  build:
+  image: {{ ENTERPRISECATALOG_WORKER_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_WORKER_IMAGE }}
+  {% if not ENTERPRISECATALOG_WORKER_DOCKER_IMAGE %}build:
     context: ../plugins/enterprisecatalog/build/enterprisecatalog
     target: openedx-enterprise-catalog-worker
+  {% endif %}
   environment:
     DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.celery_production
   restart: unless-stopped
