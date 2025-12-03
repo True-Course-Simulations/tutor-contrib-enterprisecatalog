@@ -5,7 +5,7 @@ from glob import glob
 
 import importlib.resources as importlib_resources
 
-from tutor import hooks as tutor_hooks
+from tutor import fmt, hooks as tutor_hooks
 from tutor.hooks import priorities
 
 from .__about__ import __version__
@@ -20,9 +20,10 @@ config = {
     "defaults": {
         "VERSION": __version__,
         "REPOSITORY": "https://github.com/edx/enterprise-catalog.git",
-        "REPOSITORY_VERSION": "{{ OPENEDX_COMMON_VERSION }}",
+        "REPOSITORY_VERSION": "{% set ver = OPENEDX_COMMON_VERSION %}{% if ver.startswith('open-release/') %}{{ ver }}{% elif ver.startswith('release/redwood') %}open-release/redwood.master{% elif ver.startswith('release/quince') %}open-release/quince.master{% else %}{{ ver }}{% endif %}",
         # Allow operators to point to a prebuilt image; if blank we build/push BUILT_IMAGE.
         "DOCKER_IMAGE": "",
+        "BUILD_IMAGE": True,
         "BUILT_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
         "PYTHON_VERSION": "3.12.2",
         "HOST": "enterprisecatalog.{{ LMS_HOST }}",
@@ -72,7 +73,9 @@ for path in glob(str(patches_dir / "*")):
 # Images to build: only when external images are not provided
 @tutor_hooks.Filters.IMAGES_BUILD.add()
 def _images_build(images, settings):
-    if not settings.get("ENTERPRISECATALOG_DOCKER_IMAGE"):
+    if settings.get("ENTERPRISECATALOG_BUILD_IMAGE") and not settings.get(
+        "ENTERPRISECATALOG_DOCKER_IMAGE"
+    ):
         images.append(
             (
                 "enterprisecatalog",
@@ -90,6 +93,15 @@ def _images_pull(images, settings):
         images.append(("enterprisecatalog", settings["ENTERPRISECATALOG_DOCKER_IMAGE"]))
     return images
 
+
+@tutor_hooks.Actions.CONFIG_LOADED.add()
+def _warn_image_config(config):
+    if not config.get("ENTERPRISECATALOG_BUILD_IMAGE", True) and not config.get(
+        "ENTERPRISECATALOG_DOCKER_IMAGE"
+    ):
+        fmt.echo_alert(
+            "enterprisecatalog: BUILD_IMAGE is false but no ENTERPRISECATALOG_DOCKER_IMAGE is configured. Set an external image or enable building."
+        )
 # Init tasks
 hooks_dir = importlib_resources.files("tutorenterprisecatalog") / "templates" / "enterprisecatalog" / "tasks"
 for task_name in ["mysql", "enterprisecatalog", "lms"]:
