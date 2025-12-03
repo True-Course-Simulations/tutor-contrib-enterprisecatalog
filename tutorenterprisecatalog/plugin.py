@@ -25,8 +25,8 @@ tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
     [
         ("DOCKER_REGISTRY", ""),
         ("DOCKER_IMAGE_PREFIX", ""),
-        
-        ("ENTERPRISECATALOG_REPOSITORY", "https://github.com/edx/enterprise-catalog.git"),
+
+        ("ENTERPRISECATALOG_REPOSITORY", "https://github.com/openedx/enterprise-catalog.git"),
         (
             "ENTERPRISECATALOG_BUILT_IMAGE",
             "{{ DOCKER_REGISTRY }}{{ DOCKER_IMAGE_PREFIX }}enterprise-catalog:{{ OPENEDX_COMMON_VERSION | replace('/', '-') }}",
@@ -76,17 +76,19 @@ for path in glob(str(patches_dir / "*")):
 # ######################################
 @tutor_hooks.Filters.IMAGES_BUILD.add()
 def enterprisecatalog_images_build(images, settings):
-    if settings.get("ENTERPRISECATALOG_BUILD_IMAGE") and not settings.get(
-        "ENTERPRISECATALOG_DOCKER_IMAGE"
-    ):
-        images.append(
-            (
-                "enterprisecatalog",
-                os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
-                settings["ENTERPRISECATALOG_BUILT_IMAGE"],
-                (),
-            )
+    external_image = settings.get("ENTERPRISECATALOG_DOCKER_IMAGE")
+    if external_image:
+        # Operator supplies an image; skip building.
+        return images
+
+    images.append(
+        (
+            "enterprisecatalog",
+            os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
+            settings["ENTERPRISECATALOG_BUILT_IMAGE"],
+            (),
         )
+    )
     return images
 
 

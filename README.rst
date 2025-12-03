@@ -30,8 +30,7 @@ Generate configuration and environment with the plugin enabled:
 
 Key settings (override in ``config.yml`` or via ``TUTOR_`` env vars):
 
-- ``ENTERPRISECATALOG_DOCKER_IMAGE``: pull an existing image (default: official ``openedx/enterprise-catalog`` tag matching your Open edX release).
-- ``ENTERPRISECATALOG_BUILD_IMAGE``: set to ``true`` to build locally instead.
+- ``ENTERPRISECATALOG_DOCKER_IMAGE``: optional external image to pull; if empty, the plugin builds ``ENTERPRISECATALOG_BUILT_IMAGE`` from ``ENTERPRISECATALOG_REPOSITORY``.
 - ``ENTERPRISECATALOG_REPOSITORY`` / ``ENTERPRISECATALOG_REPOSITORY_VERSION``: source repo/ref when building.
 - ``ENTERPRISECATALOG_HOST``: public hostname (default: ``enterprisecatalog.<LMS_HOST>``).
 
