@@ -7,5 +7,5 @@ enterprisecatalog:
     - ../plugins/enterprisecatalog/apps/settings/tutor:/openedx/enterprise-catalog/enterprise_catalog/settings/tutor:ro
   restart: unless-stopped
   depends_on: 
-    - enterprisecatalog-worker
+    - lms
     {% if RUN_MYSQL %}- mysql{% endif %}
