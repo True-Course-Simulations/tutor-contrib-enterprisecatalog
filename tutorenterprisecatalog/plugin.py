@@ -23,23 +23,17 @@ tutor_hooks.Filters.CONFIG_UNIQUE.add_items(
 
 tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
     [
-        ("ENTERPRISECATALOG_VERSION", __version__),
+        ("DOCKER_REGISTRY", ""),
+        ("DOCKER_IMAGE_PREFIX", ""),
+        
         ("ENTERPRISECATALOG_REPOSITORY", "https://github.com/edx/enterprise-catalog.git"),
         (
-            "ENTERPRISECATALOG_REPOSITORY_VERSION",
-            "{% set ver = OPENEDX_COMMON_VERSION %}{% if ver.startswith('open-release/') %}{{ ver }}{% elif ver.startswith('release/redwood') %}open-release/redwood.master{% elif ver.startswith('release/quince') %}open-release/quince.master{% else %}{{ ver }}{% endif %}",
-        ),
-        ("ENTERPRISECATALOG_DOCKER_IMAGE_PREFIX", ""),
-        (
-            "ENTERPRISECATALOG_DOCKER_IMAGE",
-            "{{ DOCKER_REGISTRY }}{{ ENTERPRISECATALOG_DOCKER_IMAGE_PREFIX or 'openedx/' }}enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
-        ),
-        ("ENTERPRISECATALOG_BUILD_IMAGE", False),
-        (
             "ENTERPRISECATALOG_BUILT_IMAGE",
-            "{{ DOCKER_REGISTRY }}{{ ENTERPRISECATALOG_DOCKER_IMAGE_PREFIX }}enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
+            "{{ DOCKER_REGISTRY }}{{ DOCKER_IMAGE_PREFIX }}enterprise-catalog:{{ OPENEDX_COMMON_VERSION | replace('/', '-') }}",
         ),
-        ("ENTERPRISECATALOG_PYTHON_VERSION", "3.12.2"),
+        ("ENTERPRISECATALOG_DOCKER_IMAGE", ""),
+
+        ("ENTERPRISECATALOG_VERSION", __version__),
         ("ENTERPRISECATALOG_HOST", "enterprisecatalog.{{ LMS_HOST }}"),
         ("ENTERPRISECATALOG_MYSQL_DATABASE", "enterprisecatalog"),
         ("ENTERPRISECATALOG_MYSQL_USERNAME", "enterprisecatalog"),
@@ -81,7 +75,7 @@ for path in glob(str(patches_dir / "*")):
 # DOCKER IMAGE MANAGEMENT
 # ######################################
 @tutor_hooks.Filters.IMAGES_BUILD.add()
-def _images_build(images, settings):
+def enterprisecatalog_images_build(images, settings):
     if settings.get("ENTERPRISECATALOG_BUILD_IMAGE") and not settings.get(
         "ENTERPRISECATALOG_DOCKER_IMAGE"
     ):
@@ -97,20 +91,10 @@ def _images_build(images, settings):
 
 
 @tutor_hooks.Filters.IMAGES_PULL.add()
-def _images_pull(images, settings):
+def enterprisecatalog_images_pull(images, settings):
     if settings.get("ENTERPRISECATALOG_DOCKER_IMAGE"):
         images.append(("enterprisecatalog", settings["ENTERPRISECATALOG_DOCKER_IMAGE"]))
     return images
-
-
-@tutor_hooks.Actions.CONFIG_LOADED.add()
-def _warn_image_config(config):
-    if not config.get("ENTERPRISECATALOG_BUILD_IMAGE", True) and not config.get(
-        "ENTERPRISECATALOG_DOCKER_IMAGE"
-    ):
-        fmt.echo_alert(
-            "enterprisecatalog: BUILD_IMAGE is false but no ENTERPRISECATALOG_DOCKER_IMAGE is configured. Set an external image or enable building."
-        )
 
 
 # ######################################
