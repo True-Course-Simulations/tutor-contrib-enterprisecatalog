@@ -4,4 +4,4 @@ enterprisecatalog-job:
     DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.production
   volumes:
     - ../plugins/enterprisecatalog/apps/settings/tutor:/openedx/enterprise-catalog/enterprise_catalog/settings/tutor:ro
-  depends_on: {{ [("lms", RUN_LMS), ("mysql", RUN_MYSQL)]|list_if }}
+  depends_on: {{ [("lms", True), ("mysql", RUN_MYSQL)]|list_if }}

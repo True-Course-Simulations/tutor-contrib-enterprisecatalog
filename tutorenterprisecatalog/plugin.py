@@ -1,10 +1,13 @@
-from glob import glob
+from __future__ import annotations
+
+import importlib.resources as importlib_resources
 import os
-import pkg_resources
+from glob import glob
+
+from tutor import hooks
+from tutor.hooks import priorities
 
 from .__about__ import __version__
-
-templates = pkg_resources.resource_filename("tutorenterprisecatalog", "templates")
 
 config = {
     "add": {
@@ -17,6 +20,7 @@ config = {
         "VERSION": __version__,
         "DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}diceytech/openedx-enterprise-catalog:{{ ENTERPRISECATALOG_VERSION }}",
         "WORKER_DOCKER_IMAGE": "openedx-enterprise-catalog-worker",
+        "PYTHON_VERSION": "3.12.2",
         "HOST": "enterprisecatalog.{{ LMS_HOST }}",
         "MYSQL_DATABASE": "enterprisecatalog",
         "MYSQL_USERNAME": "enterprisecatalog",
@@ -28,21 +32,60 @@ config = {
     },
 }
 
-hooks = {
-    "build-image": {
-        "enterprisecatalog": "{{ ENTERPRISECATALOG_DOCKER_IMAGE }}",
-        "enterprisecatalog-worker": "{{ ENTERPRISECATALOG_WORKER_DOCKER_IMAGE }}",
-    },
-    "init": ["mysql", "enterprisecatalog", "lms"],
-}
+# Register configuration entries with Tutor
+hooks.Filters.CONFIG_UNIQUE.add_items(
+    [
+        (f"ENTERPRISECATALOG_{key}", value)
+        for key, value in config.get("add", {}).items()
+    ]
+)
+hooks.Filters.CONFIG_DEFAULTS.add_items(
+    [
+        (f"ENTERPRISECATALOG_{key}", value)
+        for key, value in config.get("defaults", {}).items()
+    ]
+)
 
+# Template roots and targets
+templates_dir = str(importlib_resources.files("tutorenterprisecatalog") / "templates")
+hooks.Filters.ENV_TEMPLATE_ROOTS.add_item(templates_dir)
+hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
+    [
+        ("enterprisecatalog/apps", "plugins"),
+        ("enterprisecatalog/build", "plugins"),
+    ]
+)
 
-def patches():
-    all_patches = {}
-    patches_dir = pkg_resources.resource_filename("tutorenterprisecatalog", "patches")
-    for path in glob(os.path.join(patches_dir, "*")):
-        with open(path) as patch_file:
-            name = os.path.basename(path)
-            content = patch_file.read()
-            all_patches[name] = content
-    return all_patches
+# Load patches
+patches_dir = importlib_resources.files("tutorenterprisecatalog") / "patches"
+for path in glob(str(patches_dir / "*")):
+    with open(path, encoding="utf-8") as patch_file:
+        hooks.Filters.ENV_PATCHES.add_item(
+            (os.path.basename(path), patch_file.read()),
+            priority=priorities.DEFAULT,
+        )
+
+# Images to build
+hooks.Filters.IMAGES_BUILD.add_items(
+    [
+        (
+            "enterprisecatalog",
+            os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
+            "{{ ENTERPRISECATALOG_DOCKER_IMAGE }}",
+            (),
+        ),
+        (
+            "enterprisecatalog-worker",
+            os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
+            "{{ ENTERPRISECATALOG_WORKER_DOCKER_IMAGE }}",
+            ("--target=openedx-enterprise-catalog-worker",),
+        ),
+    ]
+)
+
+# Init tasks
+hooks_dir = importlib_resources.files("tutorenterprisecatalog") / "templates" / "enterprisecatalog" / "hooks"
+for task_name in ["mysql", "enterprisecatalog", "lms"]:
+    task_path = hooks_dir / task_name / "init"
+    with open(task_path, encoding="utf-8") as task_file:
+        hooks.Filters.CLI_DO_INIT_TASKS.add_item((task_name, task_file.read()))

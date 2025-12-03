@@ -38,10 +38,10 @@ setup(
     long_description=load_readme(),
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
-    python_requires=">=3.5",
-    install_requires=["tutor"],
+    python_requires=">=3.10",
+    install_requires=["tutor>=16,<21"],
     entry_points={
-        "tutor.plugin.v0": [
+        "tutor.plugin.v1": [
             "enterprisecatalog = tutorenterprisecatalog.plugin"
         ]
     },
@@ -51,11 +51,8 @@ setup(
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
 )
