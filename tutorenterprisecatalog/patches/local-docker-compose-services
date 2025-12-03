@@ -8,13 +8,3 @@ enterprisecatalog:
   depends_on: 
     - enterprisecatalog-worker
     {% if RUN_MYSQL %}- mysql{% endif %}
-
-enterprisecatalog-worker:
-  image: {{ ENTERPRISECATALOG_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_IMAGE }}
-  environment:
-    DJANGO_SETTINGS_MODULE: enterprise_catalog.settings.tutor.celery_production
-  restart: unless-stopped
-  volumes:
-    - ../plugins/enterprisecatalog/apps/settings/tutor:/openedx/enterprise-catalog/enterprise_catalog/settings/tutor:ro
-  {% if RUN_MYSQL %}depends_on: 
-    - mysql{% endif %}
