@@ -106,7 +106,7 @@ def _images_pull(images, settings):
     return images
 
 # Init tasks
-hooks_dir = importlib_resources.files("tutorenterprisecatalog") / "templates" / "enterprisecatalog" / "hooks"
+hooks_dir = importlib_resources.files("tutorenterprisecatalog") / "templates" / "enterprisecatalog" / "tasks"
 for task_name in ["mysql", "enterprisecatalog", "lms"]:
     task_path = hooks_dir / task_name / "init"
     with open(task_path, encoding="utf-8") as task_file:
