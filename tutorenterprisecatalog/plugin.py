@@ -76,15 +76,22 @@ for path in glob(str(patches_dir / "*")):
 # ######################################
 @tutor_hooks.Filters.IMAGES_BUILD.add()
 def enterprisecatalog_images_build(images, settings):
+    """
+    Build the enterprisecatalog image only when no external image is configured.
+
+    - If ENTERPRISECATALOG_DOCKER_IMAGE is empty: build ENTERPRISECATALOG_BUILT_IMAGE.
+    - If ENTERPRISECATALOG_DOCKER_IMAGE is set: assume the operator owns that image;
+      we do NOT build anything for this service.
+    """
     external_image = settings.get("ENTERPRISECATALOG_DOCKER_IMAGE")
     if external_image:
-        # Operator supplies an image; skip building.
+        # Admin is bringing their own image; don't override it.
         return images
 
     images.append(
         (
             "enterprisecatalog",
-            os.path.join("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
+            ("plugins", "enterprisecatalog", "build", "enterprisecatalog"),
             settings["ENTERPRISECATALOG_BUILT_IMAGE"],
             (),
         )
@@ -94,8 +101,13 @@ def enterprisecatalog_images_build(images, settings):
 
 @tutor_hooks.Filters.IMAGES_PULL.add()
 def enterprisecatalog_images_pull(images, settings):
-    if settings.get("ENTERPRISECATALOG_DOCKER_IMAGE"):
-        images.append(("enterprisecatalog", settings["ENTERPRISECATALOG_DOCKER_IMAGE"]))
+    """
+    When an external enterprisecatalog image is configured, allow
+    `tutor images pull enterprisecatalog` to pull it.
+    """
+    external_image = settings.get("ENTERPRISECATALOG_DOCKER_IMAGE")
+    if external_image:
+        images.append(("enterprisecatalog", external_image))
     return images
 
 
