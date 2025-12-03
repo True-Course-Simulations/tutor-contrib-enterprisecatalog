@@ -1,0 +1,26 @@
+{% set ENTERPRISECATALOG_IMAGE = ENTERPRISECATALOG_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_IMAGE %}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: enterprisecatalog-job
+  labels:
+    app.kubernetes.io/component: job
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: enterprisecatalog
+          image: {{ ENTERPRISECATALOG_IMAGE }}
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: enterprise_catalog.settings.tutor.production
+          volumeMounts:
+            - mountPath: /openedx/enterprise-catalog/enterprise_catalog/settings/tutor/production.py
+              name: settings
+              subPath: production.py
+      volumes:
+        - name: settings
+          configMap:
+            name: enterprisecatalog-settings

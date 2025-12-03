@@ -1,0 +1,38 @@
+{% set ENTERPRISECATALOG_IMAGE = ENTERPRISECATALOG_DOCKER_IMAGE or ENTERPRISECATALOG_BUILT_IMAGE %}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprisecatalog
+  labels:
+    app.kubernetes.io/name: enterprisecatalog
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: enterprisecatalog
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: enterprisecatalog
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: enterprisecatalog
+          image: {{ ENTERPRISECATALOG_IMAGE }}
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: enterprise_catalog.settings.tutor.production
+          volumeMounts:
+            - mountPath: /openedx/enterprise-catalog/enterprise_catalog/settings/tutor/production.py
+              name: settings
+              subPath: production.py
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: settings
+          configMap:
+            name: enterprisecatalog-settings

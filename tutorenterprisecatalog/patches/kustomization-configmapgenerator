@@ -1,0 +1,3 @@
+- name: enterprisecatalog-settings
+  files:
+    - plugins/enterprisecatalog/apps/settings/tutor/production.py
