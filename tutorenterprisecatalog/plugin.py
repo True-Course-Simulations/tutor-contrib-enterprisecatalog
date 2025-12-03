@@ -1,60 +1,60 @@
 from __future__ import annotations
 
+import importlib.resources as importlib_resources
 import os
 from glob import glob
-
-import importlib.resources as importlib_resources
 
 from tutor import fmt, hooks as tutor_hooks
 from tutor.hooks import priorities
 
 from .__about__ import __version__
 
-config = {
-    "add": {
-        "MYSQL_PASSWORD": "{{ 8|random_string }}",
-        "SECRET_KEY": "{{ 24|random_string }}",
-        "OAUTH2_SECRET": "{{ 8|random_string }}",
-        "OAUTH2_SECRET_SSO": "{{ 8|random_string }}",
-    },
-    "defaults": {
-        "VERSION": __version__,
-        "REPOSITORY": "https://github.com/edx/enterprise-catalog.git",
-        "REPOSITORY_VERSION": "{% set ver = OPENEDX_COMMON_VERSION %}{% if ver.startswith('open-release/') %}{{ ver }}{% elif ver.startswith('release/redwood') %}open-release/redwood.master{% elif ver.startswith('release/quince') %}open-release/quince.master{% else %}{{ ver }}{% endif %}",
-        # Allow operators to push/pull with a prefix, mirroring the license-manager style
-        "DOCKER_IMAGE_PREFIX": "",
-        # Default to pulling the official openedx image (overridable via DOCKER_IMAGE_PREFIX).
-        # Set to "" to force building BUILT_IMAGE instead.
-        "DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}{{ DOCKER_IMAGE_PREFIX or 'openedx/' }}enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
-        "BUILD_IMAGE": False,
-        "BUILT_IMAGE": "{{ DOCKER_REGISTRY }}{{ DOCKER_IMAGE_PREFIX }}enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
-        "PYTHON_VERSION": "3.12.2",
-        "HOST": "enterprisecatalog.{{ LMS_HOST }}",
-        "MYSQL_DATABASE": "enterprisecatalog",
-        "MYSQL_USERNAME": "enterprisecatalog",
-        "OAUTH2_KEY": "enterprisecatalog",
-        "OAUTH2_KEY_DEV": "enterprisecatalog-dev",
-        "OAUTH2_KEY_SSO": "enterprisecatalog-sso",
-        "OAUTH2_KEY_SSO_DEV": "enterprisecatalog-sso-dev",
-        "CACHE_REDIS_DB": "{{ OPENEDX_CACHE_REDIS_DB }}",
-    },
-}
-
-# Register configuration entries with Tutor
+# ######################################
+# CONFIGURATION
+# ######################################
 tutor_hooks.Filters.CONFIG_UNIQUE.add_items(
     [
-        (f"ENTERPRISECATALOG_{key}", value)
-        for key, value in config.get("add", {}).items()
-    ]
-)
-tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
-    [
-        (f"ENTERPRISECATALOG_{key}", value)
-        for key, value in config.get("defaults", {}).items()
+        ("ENTERPRISECATALOG_MYSQL_PASSWORD", "{{ 8|random_string }}"),
+        ("ENTERPRISECATALOG_SECRET_KEY", "{{ 24|random_string }}"),
+        ("ENTERPRISECATALOG_OAUTH2_SECRET", "{{ 8|random_string }}"),
+        ("ENTERPRISECATALOG_OAUTH2_SECRET_SSO", "{{ 8|random_string }}"),
     ]
 )
 
-# Template roots and targets
+tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
+    [
+        ("ENTERPRISECATALOG_VERSION", __version__),
+        ("ENTERPRISECATALOG_REPOSITORY", "https://github.com/edx/enterprise-catalog.git"),
+        (
+            "ENTERPRISECATALOG_REPOSITORY_VERSION",
+            "{% set ver = OPENEDX_COMMON_VERSION %}{% if ver.startswith('open-release/') %}{{ ver }}{% elif ver.startswith('release/redwood') %}open-release/redwood.master{% elif ver.startswith('release/quince') %}open-release/quince.master{% else %}{{ ver }}{% endif %}",
+        ),
+        ("ENTERPRISECATALOG_DOCKER_IMAGE_PREFIX", ""),
+        (
+            "ENTERPRISECATALOG_DOCKER_IMAGE",
+            "{{ DOCKER_REGISTRY }}{{ ENTERPRISECATALOG_DOCKER_IMAGE_PREFIX or 'openedx/' }}enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
+        ),
+        ("ENTERPRISECATALOG_BUILD_IMAGE", False),
+        (
+            "ENTERPRISECATALOG_BUILT_IMAGE",
+            "{{ DOCKER_REGISTRY }}{{ ENTERPRISECATALOG_DOCKER_IMAGE_PREFIX }}enterprise-catalog:{{ ENTERPRISECATALOG_REPOSITORY_VERSION | replace('/', '-') }}",
+        ),
+        ("ENTERPRISECATALOG_PYTHON_VERSION", "3.12.2"),
+        ("ENTERPRISECATALOG_HOST", "enterprisecatalog.{{ LMS_HOST }}"),
+        ("ENTERPRISECATALOG_MYSQL_DATABASE", "enterprisecatalog"),
+        ("ENTERPRISECATALOG_MYSQL_USERNAME", "enterprisecatalog"),
+        ("ENTERPRISECATALOG_OAUTH2_KEY", "enterprisecatalog"),
+        ("ENTERPRISECATALOG_OAUTH2_KEY_DEV", "enterprisecatalog-dev"),
+        ("ENTERPRISECATALOG_OAUTH2_KEY_SSO", "enterprisecatalog-sso"),
+        ("ENTERPRISECATALOG_OAUTH2_KEY_SSO_DEV", "enterprisecatalog-sso-dev"),
+        ("ENTERPRISECATALOG_CACHE_REDIS_DB", "{{ OPENEDX_CACHE_REDIS_DB }}"),
+    ]
+)
+
+
+# ######################################
+# TEMPLATE RENDERING
+# ######################################
 templates_dir = str(importlib_resources.files("tutorenterprisecatalog") / "templates")
 tutor_hooks.Filters.ENV_TEMPLATE_ROOTS.add_item(templates_dir)
 tutor_hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
@@ -64,7 +64,10 @@ tutor_hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
     ]
 )
 
-# Load patches
+
+# ######################################
+# PATCH LOADING
+# ######################################
 patches_dir = importlib_resources.files("tutorenterprisecatalog") / "patches"
 for path in glob(str(patches_dir / "*")):
     with open(path, encoding="utf-8") as patch_file:
@@ -73,7 +76,10 @@ for path in glob(str(patches_dir / "*")):
             priority=priorities.DEFAULT,
         )
 
-# Images to build: only when external images are not provided
+
+# ######################################
+# DOCKER IMAGE MANAGEMENT
+# ######################################
 @tutor_hooks.Filters.IMAGES_BUILD.add()
 def _images_build(images, settings):
     if settings.get("ENTERPRISECATALOG_BUILD_IMAGE") and not settings.get(
@@ -105,8 +111,17 @@ def _warn_image_config(config):
         fmt.echo_alert(
             "enterprisecatalog: BUILD_IMAGE is false but no ENTERPRISECATALOG_DOCKER_IMAGE is configured. Set an external image or enable building."
         )
-# Init tasks
-hooks_dir = importlib_resources.files("tutorenterprisecatalog") / "templates" / "enterprisecatalog" / "tasks"
+
+
+# ######################################
+# INITIALIZATION TASKS
+# ######################################
+hooks_dir = (
+    importlib_resources.files("tutorenterprisecatalog")
+    / "templates"
+    / "enterprisecatalog"
+    / "tasks"
+)
 for task_name in ["mysql", "enterprisecatalog", "lms"]:
     task_path = hooks_dir / task_name / "init"
     with open(task_path, encoding="utf-8") as task_file:
