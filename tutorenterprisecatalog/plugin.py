@@ -4,7 +4,7 @@ import importlib.resources as importlib_resources
 import os
 from glob import glob
 
-from tutor import fmt, hooks as tutor_hooks
+from tutor import hooks as tutor_hooks
 from tutor.hooks import priorities
 
 from .__about__ import __version__
