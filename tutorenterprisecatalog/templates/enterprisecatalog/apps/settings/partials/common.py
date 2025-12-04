@@ -39,16 +39,15 @@ EMAIL_HOST_PASSWORD = "{{ SMTP_PASSWORD }}"
 EMAIL_USE_TLS = {{ SMTP_USE_TLS }}
 
 
-# Get rid of the "local" handler
-for logger in LOGGING["loggers"].values():
-    if "local" in logger["handlers"]:
-        logger["handlers"].remove("local")
-LOGGING = get_logger_config(
-    log_dir="/var/log",
-    edx_filename="enterprisecatalog.log",
-    dev_env=True,
-    debug=False,
-)
+# Get rid of the "local" handler if present (not available in container builds)
+try:
+    LOGGING["handlers"].pop("local")
+    for logger in LOGGING["loggers"].values():
+        if "local" in logger["handlers"]:
+            logger["handlers"].remove("local")
+except Exception:
+    pass
+
 # Decrease verbosity of algolia logger
 LOGGING["loggers"]["algoliasearch_django"] = {"level": "WARNING"}
 

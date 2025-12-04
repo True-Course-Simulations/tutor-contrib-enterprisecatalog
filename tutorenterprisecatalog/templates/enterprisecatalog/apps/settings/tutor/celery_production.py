@@ -20,12 +20,11 @@ LMS_BASE_URL = "{{ 'https' if ENABLE_HTTPS else 'http' }}://{{ LMS_HOST }}"
 DISCOVERY_SERVICE_API_URL = "{{ 'https' if ENABLE_HTTPS else 'http' }}://{{ DISCOVERY_HOST }}/api/v1/"
 
 LOGGING = get_logger_config(
-    log_dir="/var/log",
-    edx_filename="enterprisecatalog_worker.log",
-    dev_env=True,
+    logging_env="tutor",
     debug=False,
+    service_variant="enterprise-catalog-worker",
+    format_string=LOGGING_FORMAT_STRING,
 )
-
 
 
 
