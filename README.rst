@@ -33,6 +33,7 @@ Key settings (override in ``config.yml`` or via ``TUTOR_`` env vars):
 - ``ENTERPRISECATALOG_DOCKER_IMAGE``: optional external image to pull; if empty, the plugin builds ``ENTERPRISECATALOG_BUILT_IMAGE`` from ``ENTERPRISECATALOG_REPOSITORY``.
 - ``ENTERPRISECATALOG_REPOSITORY`` / ``ENTERPRISECATALOG_REPOSITORY_VERSION``: source repo/ref when building.
 - ``ENTERPRISECATALOG_HOST``: public hostname (default: ``enterprisecatalog.<LMS_HOST>``).
+- ``ENTERPRISECATALOG_OAUTH2_SECRET_*``: separate dev/prod secrets for client-credentials and SSO apps seeded during init.
 
 Kubernetes support
 ------------------

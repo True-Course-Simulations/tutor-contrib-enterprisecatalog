@@ -17,7 +17,9 @@ tutor_hooks.Filters.CONFIG_UNIQUE.add_items(
         ("ENTERPRISECATALOG_MYSQL_PASSWORD", "{{ 8|random_string }}"),
         ("ENTERPRISECATALOG_SECRET_KEY", "{{ 24|random_string }}"),
         ("ENTERPRISECATALOG_OAUTH2_SECRET", "{{ 8|random_string }}"),
+        ("ENTERPRISECATALOG_OAUTH2_SECRET_DEV", "{{ 8|random_string }}"),
         ("ENTERPRISECATALOG_OAUTH2_SECRET_SSO", "{{ 8|random_string }}"),
+        ("ENTERPRISECATALOG_OAUTH2_SECRET_SSO_DEV", "{{ 8|random_string }}"),
     ]
 )
 
