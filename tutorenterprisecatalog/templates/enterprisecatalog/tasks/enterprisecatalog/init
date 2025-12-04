@@ -1,10 +1,11 @@
 #!/bin/bash
 # Run migrations and bootstrap metadata once the database is ready.
 
+echo "enterprisecatalog init: waiting for MySQL {{ MYSQL_HOST }}:{{ MYSQL_PORT }}"
 dockerize -wait tcp://{{ MYSQL_HOST }}:{{ MYSQL_PORT }} -timeout 20s
 
-echo "enterprisecatalog service - ./manage.py migrate"
+echo "enterprisecatalog init: running migrations"
 ./manage.py migrate --noinput
 
-echo "enterprisecatalog service - ./manage.py update_content_metadata"
+echo "enterprisecatalog init: refreshing content metadata"
 ./manage.py update_content_metadata

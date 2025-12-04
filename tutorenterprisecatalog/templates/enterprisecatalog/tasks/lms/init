@@ -1,10 +1,13 @@
+echo "enterprisecatalog lms init: syncing service user email"
 ./manage.py lms shell -c \
     "from django.contrib.auth import get_user_model;\
     get_user_model().objects.filter(username='enterprisecatalog').exclude(email='enterprisecatalog@openedx').update(email='enterprisecatalog@openedx')"
 
+echo "enterprisecatalog lms init: ensuring service user exists"
 ./manage.py lms manage_user enterprisecatalog enterprisecatalog@openedx --staff --superuser --unusable-password
 
 # Development client
+echo "enterprisecatalog lms init: creating dev OAuth clients"
 ./manage.py lms create_dot_application \
     --grant-type client-credentials \
     --redirect-uris "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ ENTERPRISECATALOG_HOST }}:8160/complete/edx-oauth2/" \
@@ -27,6 +30,7 @@
     enterprisecatalog
 
 # Production client
+echo "enterprisecatalog lms init: creating prod OAuth clients"
 ./manage.py lms create_dot_application \
     --grant-type client-credentials \
     --redirect-uris "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ ENTERPRISECATALOG_HOST }}/complete/edx-oauth2/" \
@@ -48,4 +52,5 @@
     enterprisecatalog-sso \
     enterprisecatalog
 
+echo "enterprisecatalog lms init: enabling waffle sample use_enterprise_catalog"
 (./manage.py lms waffle_sample --list | grep use_enterprise_catalog) || ./manage.py lms waffle_sample --create use_enterprise_catalog 100
