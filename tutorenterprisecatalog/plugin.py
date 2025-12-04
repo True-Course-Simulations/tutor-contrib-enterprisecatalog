@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import importlib.resources as importlib_resources
 import os
 from glob import glob
@@ -122,7 +120,7 @@ hooks_dir = (
     / "enterprisecatalog"
     / "tasks"
 )
-for task_name in ["mysql", "enterprisecatalog", "lms"]:
+for task_name in ["mysql", "lms", "enterprisecatalog"]:
     task_path = hooks_dir / task_name / "init"
     with open(task_path, encoding="utf-8") as task_file:
         tutor_hooks.Filters.CLI_DO_INIT_TASKS.add_item((task_name, task_file.read()))
