@@ -36,6 +36,12 @@ ENV PYENV_ROOT=/opt/pyenv
 USER root
 RUN git clone https://github.com/pyenv/pyenv $PYENV_ROOT --depth 1
 RUN $PYENV_ROOT/bin/pyenv install $PYTHON_VERSION
+# Install dockerize to wait on dependencies in init scripts
+ARG DOCKERIZE_VERSION=v0.16.0
+RUN dockerize_url="https://github.com/powerman/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-$(uname -m | sed 's@aarch@arm@')" \
+    && echo "Downloading dockerize from ${dockerize_url}" \
+    && curl --fail --location --output /usr/local/bin/dockerize "${dockerize_url}" \
+    && chmod a+x /usr/local/bin/dockerize
 USER app
 
 # Virtualenv and tooling
