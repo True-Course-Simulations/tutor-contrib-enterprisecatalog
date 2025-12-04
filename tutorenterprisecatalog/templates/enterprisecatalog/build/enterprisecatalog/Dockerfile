@@ -34,15 +34,15 @@ ENV ENTERPRISE_CATALOG_CFG /openedx/config.yml
 ARG PYTHON_VERSION=3.11.9
 ENV PYENV_ROOT=/opt/pyenv
 USER root
-RUN git clone https://github.com/pyenv/pyenv $PYENV_ROOT --branch v2.3.36 --depth 1
+RUN git clone https://github.com/pyenv/pyenv $PYENV_ROOT --depth 1
 RUN $PYENV_ROOT/bin/pyenv install $PYTHON_VERSION
 USER app
 
 # Virtualenv and tooling
 RUN $PYENV_ROOT/versions/$PYTHON_VERSION/bin/python -m venv /openedx/venv
 ENV PATH=/openedx/venv/bin:$PATH
-RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install \
-    setuptools==77.0.0 pip==25.0.1 wheel==0.45.1
+# Bring packaging tooling up to date
+RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install --upgrade pip setuptools wheel
 
 # Install app dependencies (cached)
 RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install -r requirements/production.txt
