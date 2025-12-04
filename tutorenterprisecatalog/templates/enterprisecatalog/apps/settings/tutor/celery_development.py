@@ -23,6 +23,3 @@ LOGGING = get_logger_config(
     service_variant="enterprise-catalog-worker",
     format_string=LOGGING_FORMAT_STRING,
 )
-
-
-
