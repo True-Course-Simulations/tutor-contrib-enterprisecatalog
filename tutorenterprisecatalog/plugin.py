@@ -42,6 +42,10 @@ tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("ENTERPRISECATALOG_OAUTH2_KEY_SSO", "enterprisecatalog-sso"),
         ("ENTERPRISECATALOG_OAUTH2_KEY_SSO_DEV", "enterprisecatalog-sso-dev"),
         ("ENTERPRISECATALOG_CACHE_REDIS_DB", "{{ OPENEDX_CACHE_REDIS_DB }}"),
+
+        ("ENTERPRISE_CATALOG_INTERNAL_ROOT_URL", "http://enterprisecatalog:18160"),
+        ("ENTERPRISE_CATALOG_URL", "http://{{ ENTERPRISECATALOG_HOST }}"),
+        ("ENTERPRISE_CATALOG_SERVICE_USERNAME", "enterprisecatalog"),
     ]
 )
 
