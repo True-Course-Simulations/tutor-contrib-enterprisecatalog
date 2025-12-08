@@ -1,1 +1,14 @@
-ENTERPRISE_CATALOG_INTERNAL_ROOT_URL = "http://enterprisecatalog:8000"
+ENTERPRISE_CATALOG_INTERNAL_ROOT_URL = ENV_TOKENS.get(
+    "ENTERPRISE_CATALOG_INTERNAL_ROOT_URL",
+    "http://enterprisecatalog.local.overhang.io:8160",
+)
+
+ENTERPRISE_CATALOG_URL = ENV_TOKENS.get(
+    "ENTERPRISE_CATALOG_URL",
+    f"http://enterprisecatalog.{ENV_TOKENS.get('LMS_HOST', 'local.openedx.io')}",
+)
+
+ENTERPRISE_CATALOG_SERVICE_USERNAME = ENV_TOKENS.get(
+    "ENTERPRISE_CATALOG_SERVICE_USERNAME",
+    "enterprisecatalog",
+)
