@@ -62,6 +62,9 @@ RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared pip install uws
 
 {{ patch("enterprise-catalog-dockerfile-post-python-requirements") }}
 
+# Inject extra enterprise-catalog management commands from the Tutor plugin
+COPY --chown=app:app ./apps/catalog/management/commands/*.py /openedx/enterprise-catalog/enterprise_catalog/apps/catalog/management/commands/
+
 # Collect static assets
 RUN python manage.py collectstatic --noinput
 
