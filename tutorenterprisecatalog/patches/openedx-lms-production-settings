@@ -1,1 +1,1 @@
-ENTERPRISE_CATALOG_INTERNAL_ROOT_URL = "http://enterprisecatalog:8000"
+ENTERPRISE_CATALOG_INTERNAL_ROOT_URL = "{% if ENABLE_HTTPS %}https{% else %}http{% endif %}://{{ ENTERPRISECATALOG_HOST }}"
