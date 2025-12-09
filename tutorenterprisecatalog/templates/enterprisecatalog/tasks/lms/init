@@ -56,6 +56,3 @@ echo "enterprisecatalog lms init: creating prod OAuth clients"
 
 echo "enterprisecatalog lms init: enabling waffle sample use_enterprise_catalog"
 (./manage.py lms waffle_sample --list | grep use_enterprise_catalog) || ./manage.py lms waffle_sample --create use_enterprise_catalog 100
-
-echo "enterprisecatalog lms init: show enterprise app migrations"
-./manage.py lms showmigrations enterprise
