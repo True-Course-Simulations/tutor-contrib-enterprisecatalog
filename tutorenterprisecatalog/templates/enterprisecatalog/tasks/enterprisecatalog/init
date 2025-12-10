@@ -11,4 +11,4 @@ echo "enterprisecatalog init: refreshing content metadata"
 ./manage.py update_content_metadata
 
 echo "enterprisecatalog init: promoting superuser"
-./manage.py create_enterprisecatalog_superadmin --username enterprise --email enterprise@openedx --npoassword
+./manage.py create_enterprisecatalog_superadmin --username enterprise --email enterprise@openedx --no-password
