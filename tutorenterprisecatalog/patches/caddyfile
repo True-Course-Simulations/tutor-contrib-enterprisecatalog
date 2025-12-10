@@ -16,6 +16,11 @@
     }
     redir @adminLoginSSO /login?next=/admin/ 302
 
+    # Block /api-docs* entirely
+    @apiDocs path /api-docs*
+    redir @apiDocs /admin 302
+    # or: respond @apiDocs "Forbidden" 403
+
     # 3) Everything else goes straight to license-manager (including /admin, /admin/login without next, APIs)
     import proxy "enterprisecatalog:8000"
 }
