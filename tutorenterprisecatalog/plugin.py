@@ -26,7 +26,7 @@ tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
         ("DOCKER_REGISTRY", ""),
         ("DOCKER_IMAGE_PREFIX", ""),
 
-        ("ENTERPRISECATALOG_REPOSITORY", "https://github.com/openedx/enterprise-catalog.git"),
+        ("ENTERPRISECATALOG_REPOSITORY", "https://github.com/edx/enterprise-catalog.git"),
         (
             "ENTERPRISECATALOG_BUILT_IMAGE",
             "{{ DOCKER_REGISTRY }}{{ DOCKER_IMAGE_PREFIX }}enterprise-catalog:{{ OPENEDX_COMMON_VERSION | replace('/', '-') }}",
