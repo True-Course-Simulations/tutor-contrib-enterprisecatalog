@@ -10,5 +10,8 @@ echo "enterprisecatalog init: running migrations"
 echo "enterprisecatalog init: promoting superuser"
 ./manage.py create_enterprisecatalog_superadmin --username enterprise --email enterprise@openedx --no-password
 
+echo "enterprisecatalog init: promoting superuser"
+./manage.py create_enterprisecatalog_superadmin --username enterprisecatalog --email enterprisecatalog@openedx --no-password
+
 echo "enterprisecatalog init: refreshing content metadata"
 ./manage.py update_content_metadata
