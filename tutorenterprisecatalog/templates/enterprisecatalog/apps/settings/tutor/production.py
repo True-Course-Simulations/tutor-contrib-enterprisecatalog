@@ -19,4 +19,13 @@ LMS_BASE_URL = "{{ 'https' if ENABLE_HTTPS else 'http' }}://{{ LMS_HOST }}"
 DISCOVERY_SERVICE_API_URL = "{{ 'https' if ENABLE_HTTPS else 'http' }}://{{ DISCOVERY_HOST }}/api/v1/"
 # ENTERPRISE_LEARNER_PORTAL_BASE_URL
 
+# tiny catalogs are allowed
+CATALOG_CONTENT_INCLUSION_GUARDRAIL_CONSIDERATION_FLOOR = 1
+
+# allow 0 → 1 (and other big swings) without blocking
+CATALOG_CONTENT_INCLUSION_GUARDRAIL_ALLOWABLE_DELTA = 1.0
+
+# optional: avoid noisy warnings in dev
+CATALOG_CONTENT_ASSOCIATIONS_CONTENT_DELTA_WARNING_THRESHOLD = 0.8
+
 {{ patch("enterprisecatalog-production-settings") }}
