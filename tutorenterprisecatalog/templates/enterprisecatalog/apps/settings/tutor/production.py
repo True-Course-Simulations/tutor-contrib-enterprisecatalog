@@ -17,6 +17,7 @@ SOCIAL_AUTH_REDIRECT_IS_HTTPS = {% if ENABLE_HTTPS %}True{% else %}False{% endif
 
 LMS_BASE_URL = "{{ 'https' if ENABLE_HTTPS else 'http' }}://{{ LMS_HOST }}"
 DISCOVERY_SERVICE_API_URL = "{{ 'https' if ENABLE_HTTPS else 'http' }}://{{ DISCOVERY_HOST }}/api/v1/"
+DISCOVERY_SERVICE_URL = "{{ 'https' if ENABLE_HTTPS else 'http' }}://{{ DISCOVERY_HOST }}"
 # ENTERPRISE_LEARNER_PORTAL_BASE_URL
 
 # tiny catalogs are allowed
