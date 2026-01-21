@@ -23,14 +23,14 @@ def load_about():
 
 ABOUT = load_about()
 
-
 setup(
     name="tutor-contrib-enterprisecatalog",
     version=ABOUT["__version__"],
-    url="https://github.com/Dicey-Tech/tutor-contrib-enterprisecatalog",
+    url="https://github.com/True-Course-Simulations/tutor-contrib-enterprisecatalog",
     project_urls={
-        "Code": "https://github.com/Dicey-Tech/tutor-contrib-enterprisecatalog",
-        "Issue tracker": "https://github.com/Dicey-Tech/tutor-contrib-enterprisecatalog/issues",
+        "Code": "https://github.com/True-Course-Simulations/tutor-contrib-enterprisecatalog",
+        "Issue tracker": "https://github.com/True-Course-Simulations/tutor-contrib-enterprisecatalog/issues",
+        "Upstream (original plugin)": "https://github.com/Dicey-Tech/tutor-contrib-enterprisecatalog",
     },
     license="AGPLv3",
     author="Sofiane Bebert",
